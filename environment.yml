@@ -1,0 +1,10 @@
+name: pollen_id
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.12
+  - sqlalchemy=2.0.25
+  - tqdm
+  - spacy=3.7.3
