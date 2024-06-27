@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text, Table
+from typing import List
+from sqlalchemy import Date, create_engine, Column, Integer, String, ForeignKey, Text, Table, Engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, Session
 
 # Define the Base class
 Base = declarative_base()
@@ -21,6 +22,7 @@ class File(Base):
     path = Column(String, nullable=False)
     filetype = Column(String, nullable=False)
     content = Column(Text, nullable=False)
+    modified_date = Column(Date, nullable=False)
 
     # Relationship to the words (reverse index)
     words = relationship(
@@ -49,7 +51,7 @@ class Word(Base):
     def __repr__(self):
         return f"<Word(word='{self.word}')>"
 
-def add_file_with_words(session, new_file: File, word_list):
+def add_file_with_words(session: Session, new_file: File, word_list: List[str]):
     # Add the new file to the session
     session.add(new_file)
 
@@ -65,11 +67,8 @@ def add_file_with_words(session, new_file: File, word_list):
         
         # Associate the word with the new file
         new_file.words.append(word)
-    
-    # Commit the changes to the database
-    session.commit()
 
-def file_indexed(session, filename, path):
+def file_indexed(session: Session, filename: str, path: str):
     return session.query(File).filter_by(filename=filename, path=path).first() is not None
 
 # Database setup
@@ -79,7 +78,7 @@ def setup_database(database_url='sqlite:///search_engine.db'):
     return engine
 
 # Create a new session
-def create_session(engine):
+def create_session(engine: Engine):
     Session = sessionmaker(bind=engine)
     return Session()
 
