@@ -66,3 +66,8 @@ def show_matches(search_string='resume'):
         print(session.query(File).filter_by(id=f).first().filename)
         i += 1
 # %%
+# Fuzzy Search:
+# https://news.ycombinator.com/item?id=30611393
+# https://www.sqlite.org/spellfix1.html
+# https://stackoverflow.com/questions/50086705/how-to-fuzzy-search-single-sqlite3-field
+# https://dontpaniclabs.com/blog/post/2023/01/05/sqlite-and-full-text-searches/
