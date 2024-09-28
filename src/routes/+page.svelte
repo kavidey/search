@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
+  import { pickDirectory } from "$lib/fileDialog";
 
   let name = "";
   let greetMsg = "";
@@ -10,8 +11,8 @@
   }
 
   async function index_files() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    await invoke("index", { root: '.' });
+    const dir = await pickDirectory();
+    await invoke("index", { root: dir });
   }
 </script>
 
