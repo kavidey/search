@@ -3,6 +3,7 @@
 
 mod database;
 mod state;
+mod scan;
 
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
@@ -17,13 +18,20 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
 
     // let items_string = items.join(" | ");
 
-    format!("Your name log: {}", "a")
+    format!("Your name log: {}", name)
+}
+
+#[tauri::command]
+fn index(app_handle: AppHandle, root: &str) {
+    scan::index_directory(root, |name, path| {
+        println!("File {:?} has full path {:?}", name, path);
+    });
 }
 
 fn main() {
     tauri::Builder::default()
         .manage(AppState { db: Default::default() })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, index])
         .setup(|app| {
             let handle = app.handle();
 

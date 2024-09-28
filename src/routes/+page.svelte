@@ -8,6 +8,11 @@
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     greetMsg = await invoke("greet", { name });
   }
+
+  async function index_files() {
+    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+    await invoke("index", { root: '.' });
+  }
 </script>
 
 <div class="container">
@@ -33,6 +38,10 @@
   </form>
 
   <p>{greetMsg}</p>
+
+  <div class="row">
+    <button on:click={index_files}>Index Files</button>
+  </div>
 </div>
 
 <style>
