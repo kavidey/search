@@ -25,6 +25,7 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
 #[tauri::command]
 fn index(app_handle: AppHandle, root: &str) {
     scan::index_directory(root, |name, path| {
+        println!("File {:?} has full path {:?}", name, path);
         app_handle.db(|db| {
             let f = File {
                 id: 0,
@@ -35,7 +36,6 @@ fn index(app_handle: AppHandle, root: &str) {
             };
             database::add_file(&f, db)
         }).unwrap();
-        // println!("File {:?} has full path {:?}", name, path);
     },|error| {
         println!("Error {}. Continued scanning", error)
     });
