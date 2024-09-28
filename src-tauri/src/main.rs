@@ -5,6 +5,7 @@ mod database;
 mod state;
 mod scan;
 
+use database::File;
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
 
@@ -24,7 +25,19 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
 #[tauri::command]
 fn index(app_handle: AppHandle, root: &str) {
     scan::index_directory(root, |name, path| {
-        println!("File {:?} has full path {:?}", name, path);
+        app_handle.db(|db| {
+            let f = File {
+                id: 0,
+                filename: name,
+                path: path.into_os_string().into_string().unwrap(),
+                filetype: "".to_owned(),
+                date_modified: 0
+            };
+            database::add_file(&f, db)
+        }).unwrap();
+        // println!("File {:?} has full path {:?}", name, path);
+    },|error| {
+        println!("Error {}. Continued scanning", error)
     });
 }
 
