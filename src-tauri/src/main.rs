@@ -9,6 +9,8 @@ use database::File;
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
 
+use candle_core::{Device, Tensor};
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(app_handle: AppHandle, name: &str) -> String {
@@ -41,10 +43,34 @@ fn index(app_handle: AppHandle, root: &str) {
     });
 }
 
+// if correct, can unwrap otherwise error 
+
+// TODO: get this working with button tihng
+#[tauri::command]
+fn clip(app_handle: AppHandle, name: &str) -> Result<(), String> {
+    match clip_helper() {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string())
+    }
+}
+
+fn clip_helper() -> Result<(), Box<dyn std::error::Error>> {
+    let device = Device::Cpu;
+
+    let a = Tensor::randn(0f32, 1., (2, 3), &device)?;
+    let b = Tensor::randn(0f32, 1., (3, 4), &device)?;
+
+    let c = a.matmul(&b)?;
+    println!("{c}");
+    println!("Hi");
+    Ok(())
+}
+
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState { db: Default::default() })
-        .invoke_handler(tauri::generate_handler![greet, index])
+        .invoke_handler(tauri::generate_handler![greet, clip, index])
         .setup(|app| {
             let handle = app.handle();
 

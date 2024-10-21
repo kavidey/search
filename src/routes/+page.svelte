@@ -4,6 +4,7 @@
 
   let name = "";
   let greetMsg = "";
+  let clipOutput = "";
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -14,6 +15,11 @@
     const dir = await pickDirectory();
     await invoke("index", { root: dir });
   }
+
+  async function clip() {
+    clipOutput = await invoke("clip");
+  }
+
 </script>
 
 <div class="container">
@@ -43,6 +49,13 @@
   <div class="row">
     <button on:click={index_files}>Index Files</button>
   </div>
+
+  <div class="row">
+    <button on:click={clip}>Clip.</button>
+  </div>
+
+  <p>{clipOutput}</p>
+
 </div>
 
 <style>
