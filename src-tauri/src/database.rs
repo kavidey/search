@@ -1,5 +1,5 @@
 use rusqlite::{named_params, Connection, Result};
-use std::fs;
+use std::{fs, path::Path};
 use tauri::AppHandle;
 
 const CURRENT_DB_VERSION: u32 = 2;
@@ -29,9 +29,23 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
     let existing_user_version: u32 = user_pragma.query_row([], |row| Ok(row.get(0)?))?;
     drop(user_pragma);
 
+    let spellfix_path = app_handle.path_resolver()
+        .resolve_resource("resources/spellfix.dylib")
+        .expect("failed to resolve spellfix.dylib");
+
+    unsafe {
+        load_my_extension(&db, &spellfix_path.as_path());
+    }
+    println!("loaded spellfix");
+
     upgrade_database_if_needed(&mut db, existing_user_version)?;
 
     Ok(db)
+}
+
+unsafe fn load_my_extension(conn: &Connection, path: &Path) -> Result<()> {
+    let _guard = rusqlite::LoadExtensionGuard::new(conn)?;
+    conn.load_extension(path, None)
 }
 
 /// Upgrades the database to the current version.
@@ -56,6 +70,12 @@ pub fn upgrade_database_if_needed(
             date_modified INTEGER NOT NULL
         );",
         )?;
+        println!("created database");
+        tx.execute_batch(
+            "
+        CREATE VIRTUAL TABLE IF NOT EXISTS fts_documents USING fts5(content);
+        CREATE VIRTUAL TABLE IF NOT EXISTS spellfix1 USING spellfix1;
+        ")?;
 
         tx.commit()?;
     }

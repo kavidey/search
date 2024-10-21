@@ -1,6 +1,10 @@
 use scan_dir::{ScanDir, Error};
 use std::path::PathBuf;
 
+pub struct IndexResponse {
+    pub files_indexed: i32
+}
+
 pub fn index_directory(root: &str, file_handler: impl Fn(String, PathBuf), error_handler: fn(Error)) {
     let walk_result = ScanDir::files().walk(root, |iter| {
         for (entry, name) in iter {

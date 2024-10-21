@@ -6,6 +6,7 @@ mod state;
 mod scan;
 
 use database::File;
+use scan::IndexResponse;
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
 
@@ -22,9 +23,11 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
     format!("Your name log: {}", name)
 }
 
+// TODO: Return total number of indexed files
 #[tauri::command]
-fn index(app_handle: AppHandle, root: &str) {
-    scan::index_directory(root, |name, path| {
+async fn index(app_handle: AppHandle, root: String) {
+    // mut u32 files_indexed = 0;
+    scan::index_directory(root.as_str(), |name, path| {
         app_handle.db(|db| {
             let f = File {
                 id: 0,
@@ -39,6 +42,10 @@ fn index(app_handle: AppHandle, root: &str) {
     },|error| {
         println!("Error {}. Continued scanning", error)
     });
+    // Ok(())
+    // IndexResponse {
+    //     files_indexed: 0
+    // }
 }
 
 fn main() {
