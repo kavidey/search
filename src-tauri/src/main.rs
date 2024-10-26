@@ -20,7 +20,6 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
     // let items = app_handle.db(|db| database::get_all(db)).unwrap();
 
     // let items_string = items.join(" | ");
-
     format!("Your name log: {}", name)
 }
 
@@ -45,9 +44,10 @@ fn index(app_handle: AppHandle, root: &str) {
 
 // if correct, can unwrap otherwise error 
 
-// TODO: get this working with button tihng
+// TODO: get this working with button thing
 #[tauri::command]
-fn clip(app_handle: AppHandle, name: &str) -> Result<(), String> {
+fn clip(app_handle: AppHandle) -> Result<(), String> {
+    println!("touch");
     match clip_helper() {
         Ok(_) => Ok(()),
         Err(e) => Err(e.to_string())
