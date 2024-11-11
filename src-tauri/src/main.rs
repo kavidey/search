@@ -4,10 +4,12 @@
 mod database;
 mod state;
 mod scan;
+mod clip;
 
 use database::File;
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
+use clip::ClipModel;
 
 use candle_core::{Device, Tensor};
 
@@ -22,6 +24,18 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
     // let items_string = items.join(" | ");
     format!("Your name log: {}", name)
 }
+
+#[tauri::command]
+fn process_images_and_text(
+    model: tauri::State<ClipModel>,
+    image_paths: Vec<String>,
+    text_sequences: Vec<String>,
+) -> Result<Vec<Vec<(String, f32)>>, String> {
+    model
+        .process_images_and_text(image_paths, text_sequences)
+        .map_err(|e| e.to_string())
+}
+
 
 #[tauri::command]
 fn index(app_handle: AppHandle, root: &str) {
@@ -70,13 +84,21 @@ fn clip_helper() -> Result<(), Box<dyn std::error::Error>> {
 fn main() {
     tauri::Builder::default()
         .manage(AppState { db: Default::default() })
-        .invoke_handler(tauri::generate_handler![greet, clip, index])
+        .invoke_handler(tauri::generate_handler![greet, clip, index, process_images_and_text])
         .setup(|app| {
             let handle = app.handle();
 
             let app_state: State<AppState> = handle.state();
             let db = database::initialize_database(&handle).expect("Database initialize should succeed");
             *app_state.db.lock().unwrap() = Some(db);
+
+            let model = ClipModel::new(
+                "path/to/model.safetensors",
+                "path/to/tokenizer.json",
+                false, // use_cpu
+            )
+            .expect("Failed to initialize CLIP model");
+            app.manage(model);
 
             Ok(())
         })

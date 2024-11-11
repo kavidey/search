@@ -38,3 +38,5 @@ impl ServiceAccess for AppHandle {
         operation(db)
     }
 }
+// TODO: Add clip stuff to the setup 
+// add individual functions to the main.rs file

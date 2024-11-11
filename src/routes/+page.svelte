@@ -1,6 +1,8 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
-  import { pickDirectory } from "$lib/fileDialog";
+  import { pickDirectory} from "$lib/fileDialog";
+  import { open } from '@tauri-apps/plugin-dialog';
+
 
   let name = "";
   let greetMsg = "";
@@ -19,6 +21,26 @@
   async function clip() {
     clipOutput = await invoke("clip");
   }
+
+  async function processImagesAndText() {
+  // pick file not directory
+  const file = await open({
+    multiple: false,
+    directory: false,
+  });
+
+  console.log(file)
+
+  try {
+    const results = await invoke('process_images_and_text', {
+      file,
+      "HI",
+    })
+    console.log(results)
+  } catch (error) {
+    console.error('Error processing images and text:', error)
+  }
+}
 
 </script>
 
@@ -42,7 +64,12 @@
   <form class="row" on:submit|preventDefault={greet}>
     <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
     <button type="submit">Greet</button>
-  </form>
+  </form> 
+<!--   
+  <form class="row" on:submit|preventDefault={greet}>
+    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
+    <button type="submit">Greet</button>
+  </form> -->
 
   <p>{greetMsg}</p>
 
@@ -50,9 +77,9 @@
     <button on:click={index_files}>Index Files</button>
   </div>
 
-  <div class="row">
+  <!-- <div class="row">
     <button on:click={clip}>Clip.</button>
-  </div>
+  </div> -->
 
   <p>{clipOutput}</p>
 
