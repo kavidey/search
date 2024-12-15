@@ -4,6 +4,7 @@
 mod database;
 mod state;
 mod scan;
+mod parse;
 
 use database::File;
 use scan::IndexResponse;
@@ -19,6 +20,9 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
     // let items = app_handle.db(|db| database::get_all(db)).unwrap();
 
     // let items_string = items.join(" | ");
+    app_handle.db(|db| {
+        database::find_file(name, db)
+    });
 
     format!("Your name log: {}", name)
 }
