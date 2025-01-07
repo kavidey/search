@@ -13,7 +13,7 @@ use tauri::{State, Manager, AppHandle};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(app_handle: AppHandle, name: &str) -> String {
+fn search(app_handle: AppHandle, name: &str) -> Vec<String> {
     // Should handle errors instead of unwrapping here
     // app_handle.db(|db| database::add_item(name, db)).unwrap();
 
@@ -22,9 +22,7 @@ fn greet(app_handle: AppHandle, name: &str) -> String {
     // let items_string = items.join(" | ");
     app_handle.db(|db| {
         database::find_file(name, db)
-    });
-
-    format!("Your name log: {}", name)
+    }).expect("Database Error")
 }
 
 // TODO: Return total number of indexed files
@@ -55,7 +53,7 @@ async fn index(app_handle: AppHandle, root: String) {
 fn main() {
     tauri::Builder::default()
         .manage(AppState { db: Default::default() })
-        .invoke_handler(tauri::generate_handler![greet, index])
+        .invoke_handler(tauri::generate_handler![search, index])
         .setup(|app| {
             let handle = app.handle();
 

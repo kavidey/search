@@ -115,7 +115,7 @@ fn file_indexed(f: &File, db: &Connection) -> bool {
     return false;
 }
 
-pub fn find_file(query: &str, db: &Connection) -> Result<()> {
+pub fn find_file(query: &str, db: &Connection) -> Result<Vec<String>> {
     let mut spellfix_stmt = db.prepare(
         "
         SELECT word FROM spellfix1
@@ -136,30 +136,12 @@ pub fn find_file(query: &str, db: &Connection) -> Result<()> {
 
     let search_query = corrected_word.unwrap_or(query.to_string());
 
-    println!("Search Query: {}", search_query);
+    // println!("Search Query: {}", search_query);
 
     let mut stmt = db.prepare("SELECT content FROM fts_documents WHERE content MATCH ?")?;
     let results: Vec<String> = stmt
         .query_map([&search_query], |row| row.get(0))? // Map rows to String (content column)
         .filter_map(Result::ok) // Filter out errors
         .collect(); // Collect results into a vector
-
-    for content in results {
-        println!("Found content: {}", content); // Print each matching content
-    }
-
-    Ok(())
+    Ok(results)
 }
-
-// pub fn get_all(db: &Connection) -> Result<Vec<String>, rusqlite::Error> {
-//     let mut statement = db.prepare("SELECT * FROM items")?;
-//     let mut rows = statement.query([])?;
-//     let mut items = Vec::new();
-//     while let Some(row) = rows.next()? {
-//       let title: String = row.get("title")?;
-
-//       items.push(title);
-//     }
-
-//     Ok(items)
-// }

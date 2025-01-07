@@ -3,11 +3,11 @@
   import { pickDirectory } from "$lib/fileDialog";
 
   let name = "";
-  let greetMsg = "";
+  let results: Array<String> = [];
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    greetMsg = await invoke("greet", { name });
+    results = await invoke("search", { name }) as Array<String>;
   }
 
   async function index_files() {
@@ -17,32 +17,21 @@
 </script>
 
 <div class="container">
-  <h1>Welcome to Tauri!</h1>
-
-  <div class="row">
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://kit.svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte-kit" alt="SvelteKit Logo" />
-    </a>
-  </div>
-
-  <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
-
-  <form class="row" on:submit|preventDefault={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
-    <button type="submit">Greet</button>
-  </form>
-
-  <p>{greetMsg}</p>
-
+  <h1>Search</h1>
   <div class="row">
     <button on:click={index_files}>Index Files</button>
   </div>
+
+  <br>
+
+  <input id="greet-input" placeholder="Enter a name..." bind:value={name} on:input={greet}/>
+
+  <p>
+  {#each results as item}
+    {item} <br>
+  {/each}
+  </p>
+
 </div>
 
 <style>
