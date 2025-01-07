@@ -1,6 +1,6 @@
 use rusqlite::{named_params, params, Connection, Result};
 use std::{fs, path::Path};
-use tauri::AppHandle;
+use tauri::{path::BaseDirectory, AppHandle, Manager};
 
 #[path = "./parse.rs"]
 mod parse;
@@ -18,7 +18,7 @@ pub struct File {
 
 pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
     let app_dir = app_handle
-        .path_resolver()
+        .path()
         .app_data_dir()
         .expect("The app data directory should exist.");
     fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
@@ -33,8 +33,8 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
     drop(user_pragma);
 
     let spellfix_path = app_handle
-        .path_resolver()
-        .resolve_resource("resources/spellfix.dylib")
+        .path()
+        .resolve("resources/spellfix.dylib", BaseDirectory::Resource)
         .expect("failed to resolve spellfix.dylib");
 
     unsafe {

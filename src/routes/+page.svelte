@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/tauri";
+  import { invoke } from "@tauri-apps/api/core";
   import { pickDirectory } from "$lib/fileDialog";
 
   let name = "";
@@ -35,13 +35,6 @@
 </div>
 
 <style>
-  .logo.vite:hover {
-    filter: drop-shadow(0 0 2em #747bff);
-  }
-
-  .logo.svelte-kit:hover {
-    filter: drop-shadow(0 0 2em #ff3e00);
-  }
 
   :root {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -68,30 +61,9 @@
     text-align: center;
   }
 
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: 0.75s;
-  }
-
-  .logo.tauri:hover {
-    filter: drop-shadow(0 0 2em #24c8db);
-  }
-
   .row {
     display: flex;
     justify-content: center;
-  }
-
-  a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-  }
-
-  a:hover {
-    color: #535bf2;
   }
 
   h1 {
@@ -137,10 +109,6 @@
     :root {
       color: #f6f6f6;
       background-color: #2f2f2f;
-    }
-
-    a:hover {
-      color: #24c8db;
     }
 
     input,

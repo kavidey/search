@@ -1,9 +1,10 @@
-use regex::Regex;
 use once_cell::sync::Lazy;
+use regex::Regex;
 use std::path::MAIN_SEPARATOR;
 
 pub fn split_filename(string: &str) -> Vec<String> {
-    static CAMEL_CASE_SPLIT: Lazy<Regex> = Lazy::new(|| Regex::new(r"([a-z&])([&A-Z0-9])|([^ ])([A-Z][a-z])|([0-9])([a-z])").unwrap());
+    static CAMEL_CASE_SPLIT: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"([a-z&])([&A-Z0-9])|([^ ])([A-Z][a-z])|([0-9])([a-z])").unwrap());
 
     static DELIMITERS_SPLIT: Lazy<Regex> = Lazy::new(|| {
         let delimiters = [" ", ".", "_", "-"];

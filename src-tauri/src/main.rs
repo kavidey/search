@@ -2,14 +2,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod database;
-mod state;
-mod scan;
 mod parse;
+mod scan;
+mod state;
 
 use database::File;
 use scan::IndexResponse;
 use state::{AppState, ServiceAccess};
-use tauri::{State, Manager, AppHandle};
+use tauri::http::Response;
+use tauri::{AppHandle, Manager, State};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -20,30 +21,34 @@ fn search(app_handle: AppHandle, name: &str) -> Vec<String> {
     // let items = app_handle.db(|db| database::get_all(db)).unwrap();
 
     // let items_string = items.join(" | ");
-    app_handle.db(|db| {
-        database::find_file(name, db)
-    }).expect("Database Error")
+    app_handle
+        .db(|db| database::find_file(name, db))
+        .expect("Database Error")
 }
 
 // TODO: Return total number of indexed files
 #[tauri::command]
 async fn index(app_handle: AppHandle, root: String) {
     // mut u32 files_indexed = 0;
-    scan::index_directory(root.as_str(), |name, path| {
-        app_handle.db(|db| {
-            let f = File {
-                id: 0,
-                filename: name,
-                path: path.into_os_string().into_string().unwrap(),
-                filetype: "".to_owned(),
-                date_modified: 0
-            };
-            database::add_file(&f, db)
-        }).unwrap();
-        // println!("File {:?} has full path {:?}", name, path);
-    },|error| {
-        println!("Error {}. Continued scanning", error)
-    });
+    scan::index_directory(
+        root.as_str(),
+        |name, path| {
+            app_handle
+                .db(|db| {
+                    let f = File {
+                        id: 0,
+                        filename: name,
+                        path: path.into_os_string().into_string().unwrap(),
+                        filetype: "".to_owned(),
+                        date_modified: 0,
+                    };
+                    database::add_file(&f, db)
+                })
+                .unwrap();
+            // println!("File {:?} has full path {:?}", name, path);
+        },
+        |error| println!("Error {}. Continued scanning", error),
+    );
     // Ok(())
     // IndexResponse {
     //     files_indexed: 0
@@ -52,13 +57,17 @@ async fn index(app_handle: AppHandle, root: String) {
 
 fn main() {
     tauri::Builder::default()
-        .manage(AppState { db: Default::default() })
+        .plugin(tauri_plugin_dialog::init())
+        .manage(AppState {
+            db: Default::default(),
+        })
         .invoke_handler(tauri::generate_handler![search, index])
         .setup(|app| {
             let handle = app.handle();
 
             let app_state: State<AppState> = handle.state();
-            let db = database::initialize_database(&handle).expect("Database initialize should succeed");
+            let db =
+                database::initialize_database(&handle).expect("Database initialize should succeed");
             *app_state.db.lock().unwrap() = Some(db);
 
             Ok(())
